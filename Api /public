@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrendBot Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Aapki di hui Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyABn6qYXTvrffjuEhcDaEHU-ipAvb9YXMQ",
+            authDomain: "refer-ffd56.firebaseapp.com",
+            projectId: "refer-ffd56",
+            storageBucket: "refer-ffd56.firebasestorage.app",
+            messagingSenderId: "781090144574",
+            appId: "1:781090144574:web:069215b2449a1791b22c6f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Tab Switching Logic
+        window.showTab = (id) => {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        };
+
+        // User Data Load karne ka function
+        window.loadUserData = async (uid) => {
+            const userRef = doc(db, "users", uid);
+            const snap = await getDoc(userRef);
+            if(snap.exists()) {
+                const data = snap.data();
+                document.getElementById('displayCoins').innerText = data.coins || 0;
+                document.getElementById('displayRef').innerText = data.reffer || 0;
+                document.getElementById('shareLink').value = "https://t.me/Mkar_earning_bot?start=" + uid;
+            }
+        };
+    </script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen pb-20 font-sans">
+
+    <div id="home" class="tab-content p-6 animate__animated animate__fadeIn">
+        <div class="bg-gradient-to-br from-blue-600 to-indigo-800 p-8 rounded-3xl text-center shadow-2xl mb-6">
+            <p class="text-xs opacity-70 uppercase tracking-widest">Available Balance</p>
+            <h1 class="text-5xl font-black mt-2">💰 <span id="displayCoins">0</span></h1>
+        </div>
+
+        <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700">
+            <h3 class="text-yellow-400 font-bold mb-3 uppercase text-sm">Refer & Earn 🔥</h3>
+            <p class="text-xs text-slate-400 mb-4">Har refer par 50 coins payein!</p>
+            <input id="shareLink" type="text" readonly class="w-full bg-slate-900 p-3 rounded-lg text-xs mb-3 border border-slate-700 text-blue-400">
+            <button onclick="navigator.clipboard.writeText(document.getElementById('shareLink').value); alert('Link Copied!')" class="w-full bg-yellow-500 text-black font-bold py-3 rounded-xl hover:bg-yellow-400 transition-all">COPY INVITE LINK</button>
+        </div>
+    </div>
+
+    <div id="tasks" class="tab-content hidden p-6">
+        <h2 class="text-2xl font-black mb-6">📝 Daily Tasks</h2>
+        <div class="space-y-4">
+            <div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center border border-slate-700">
+                <div>
+                    <p class="font-bold">Join Official Channel</p>
+                    <p class="text-xs text-green-400">+50 Coins</p>
+                </div>
+                <button class="bg-blue-600 px-4 py-2 rounded-lg text-xs font-bold">START</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="withdraw" class="tab-content hidden p-6">
+        <h2 class="text-2xl font-black mb-6">💸 Cash Out</h2>
+        <div class="bg-slate-800 p-6 rounded-2xl space-y-4">
+            <input type="text" placeholder="UPI ID (e.g., name@upi)" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none focus:border-blue-500">
+            <input type="number" placeholder="Amount (Minimum 100)" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none focus:border-blue-500">
+            <button class="w-full bg-green-600 p-4 rounded-xl font-black hover:bg-green-500 transition-all">SUBMIT REQUEST</button>
+        </div>
+    </div>
+
+    <div id="profile" class="tab-content hidden p-6 text-center">
+        <div class="w-24 h-24 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-full mx-auto mb-4 border-4 border-slate-800 shadow-xl"></div>
+        <h2 class="text-2xl font-bold">User Profile</h2>
+        <p class="text-slate-500 text-sm mb-6">Total Refers: <span id="displayRef">0</span></p>
+        <button class="text-red-400 text-xs font-bold border border-red-400/30 px-4 py-2 rounded-full">LOGOUT</button>
+    </div>
+
+    <nav class="fixed bottom-0 left-0 right-0 bg-slate-800/90 backdrop-blur-md p-4 flex justify-around border-t border-slate-700 shadow-2xl">
+        <button onclick="showTab('home')" class="flex flex-col items-center text-blue-500">
+            <span class="text-xl">🏠</span>
+            <span class="text-[10px] mt-1 font-bold">HOME</span>
+        </button>
+        <button onclick="showTab('tasks')" class="flex flex-col items-center text-slate-400">
+            <span class="text-xl">📝</span>
+            <span class="text-[10px] mt-1 font-bold">TASKS</span>
+        </button>
+        <button onclick="showTab('withdraw')" class="flex flex-col items-center text-slate-400">
+            <span class="text-xl">💸</span>
+            <span class="text-[10px] mt-1 font-bold">CASH</span>
+        </button>
+        <button onclick="showTab('profile')" class="flex flex-col items-center text-slate-400">
+            <span class="text-xl">👤</span>
+            <span class="text-[10px] mt-1 font-bold">USER</span>
+        </button>
+    </nav>
+
+</body>
+</html>
+
