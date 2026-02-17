@@ -1,23 +1,14 @@
 const { Telegraf, Markup } = require('telegraf');
 const admin = require('firebase-admin');
 const express = require('express');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
-const express = require('express');
-const { Telegraf } = require('telegraf');
+app.use(express.json());
 
-const app = express();
-const bot = new Telegraf(process.env.BOT_TOKEN);
-
-// --- YAHAN DALNA HAI ---
-app.use(bot.webhookCallback('/api/webhook'));
-
-// Iske baad baaki ke routes aate hain
-app.get('/', (req, res) => res.send('Server is running!'));
-;
-
-// --- FIREBASE SETUP (Using Environment Variable) ---
+// --- FIREBASE SETUP ---
+// Note: Vercel par FIREBASE_SERVICE_ACCOUNT variable mein poora JSON text hona chahiye
 if (!admin.apps.length) {
     admin.initializeApp({
         credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT))
@@ -26,8 +17,14 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 
 // --- BOT SETUP ---
-const bot = new Telegraf(process.env.BOT_TOKEN);
+const bot = new Telegraf("7928266949:AAHqGiztgRNNGJ7u1jznA2ZuS98hshx8hXU");
 const DASHBOARD_URL = "https://backend-reffer-seven.vercel.app/"; 
+
+// Webhook Middleware
+app.use(bot.webhookCallback('/api/webhook'));
+
+// Static Files (Frontend Dashboard)
+app.use(express.static(path.join(__dirname, 'public')));
 
 bot.start(async (ctx) => {
     const userId = String(ctx.from.id);
@@ -39,8 +36,12 @@ bot.start(async (ctx) => {
 
     if (!userDoc.exists) {
         let userData = {
-            id: userId, name: userName, coins: 10, reffer: 0,
-            refferBy: null, createdAt: admin.firestore.FieldValue.serverTimestamp()
+            id: userId,
+            name: userName,
+            coins: 10,
+            reffer: 0,
+            refferBy: null,
+            createdAt: admin.firestore.FieldValue.serverTimestamp()
         };
 
         if (startPayload && startPayload !== userId) {
@@ -58,22 +59,20 @@ bot.start(async (ctx) => {
         await userRef.set(userData);
     }
 
-    ctx.reply(`नमस्ते ${userName}! 🙏`, Markup.inlineKeyboard([
-        [Markup.button.webApp('🚀 Open Dashboard', DASHBOARD_URL)],
-        [Markup.button.url('📢 Join Channel', 'https://t.me/Trendmansun')]
-    ]));
+    ctx.reply(`नमस्ते ${userName}! 🙏\nTrendBot Dashboard niche button se kholein:`, 
+        Markup.inlineKeyboard([
+            [Markup.button.webApp('🚀 Open Dashboard', DASHBOARD_URL)],
+            [Markup.button.url('📢 Join Channel', 'https://t.me/Trendmansun')]
+        ])
+    );
 });
 
-// --- VERCEL ADAPTATION ---
-app.post('/api/webhook', (req, res) => {
-    bot.handleUpdate(req.body, res);
-});
-
+// Default Routes
 app.get('/', (req, res) => {
-    res.send('TrendBot Backend is Live! 🚀');
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Server Running"));
+app.listen(PORT, () => console.log("TrendBot Backend is Running..."));
 
 module.exports = app;
