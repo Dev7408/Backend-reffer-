@@ -4,7 +4,18 @@ const express = require('express');
 require('dotenv').config();
 
 const app = express();
-app.use(express.json());
+const express = require('express');
+const { Telegraf } = require('telegraf');
+
+const app = express();
+const bot = new Telegraf(process.env.BOT_TOKEN);
+
+// --- YAHAN DALNA HAI ---
+app.use(bot.webhookCallback('/api/webhook'));
+
+// Iske baad baaki ke routes aate hain
+app.get('/', (req, res) => res.send('Server is running!'));
+;
 
 // --- FIREBASE SETUP (Using Environment Variable) ---
 if (!admin.apps.length) {
