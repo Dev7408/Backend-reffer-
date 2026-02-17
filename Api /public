@@ -34,7 +34,6 @@
         </div>
         <button class="w-full bg-yellow-500 text-black font-bold py-4 rounded-2xl mb-4">REFER FRIENDS (50 Coins)</button>
     </div>
-
     <nav class="fixed bottom-0 left-0 right-0 bg-slate-800 p-4 flex justify-around border-t border-slate-700">
         <button onclick="showTab('home')">🏠</button>
         <button onclick="showTab('tasks')">📋</button>
